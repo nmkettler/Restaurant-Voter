@@ -1,0 +1,152 @@
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.WindowConstants;
+
+public class UserInterface implements Runnable {
+	private JFrame frame;
+	private JButton addButton;
+	private JButton printButton;
+	private UserInterface ui;
+	private JTextField inputField;
+	private JTextField rating;
+	private ArrayList<String> list;
+	private File f;
+	private String fileName;
+
+	public UserInterface() {
+
+		list = new ArrayList<String>();
+	}
+
+	public void run() {
+		frame = new JFrame("Food Voter");
+		frame.setPreferredSize(new Dimension(400, 200));
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+		createComponents(frame.getContentPane());
+
+		frame.pack();
+		frame.setVisible(true);
+	}
+
+	private void createComponents(Container container) {
+		frame.setLayout(new GridLayout(3, 1));
+
+		JLabel restName = new JLabel("Restaurant Name: ");
+		inputField = new JTextField("");
+
+		JLabel restRating = new JLabel("Restaurant Rating/Comments: ");
+		rating = new JTextField("");
+
+		addButton = new JButton("Add Restaurant");
+		addButton.setPreferredSize(new Dimension(10, 10));
+
+		printButton = new JButton("Print");
+		printButton.setPreferredSize(new Dimension(10, 10));
+
+		Voting v = new Voting();
+		Printing p = new Printing();
+
+		container.add(restName);
+		container.add(inputField);
+		container.add(restRating);
+		container.add(rating);
+		container.add(addButton);
+		container.add(printButton);
+		addButton.addActionListener(v);
+		printButton.addActionListener(p);
+
+	}
+
+	public JFrame getFrame() {
+		return frame;
+
+	}
+
+	private class Voting implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+			int value = 0;
+
+			try {
+				value = Integer.parseInt(inputField.getText());
+			} catch (Exception e) {
+			}
+			JButton src = (JButton) ae.getSource();
+
+			if (src.equals(addButton)) {
+				String addItem = inputField.getText().trim();
+				String addRate = rating.getText().trim();
+				list.add(addItem);
+				list.add(addRate);
+				inputField.setText("");
+				rating.setText("");
+			}
+		}
+
+	}
+
+	private class Printing implements ActionListener {
+
+		public void printRes() throws IOException {
+			
+			JFileChooser chooser = new JFileChooser();
+			chooser.showOpenDialog(null);
+			f = chooser.getSelectedFile();
+			fileName = f.getAbsolutePath();			
+			BufferedWriter writer = new BufferedWriter(new FileWriter(f));
+			
+			try {
+				for (String str : list) {
+					writer.write(str);
+					writer.newLine();					
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				writer.close();
+			}
+
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			JButton src = (JButton) event.getSource();
+
+			if (src.equals(printButton)) {
+				try {
+					printRes();
+					src.setText(fileName);
+				} catch (IOException e) {
+
+					e.printStackTrace();
+				}
+
+			}
+		}
+
+	}
+
+}
