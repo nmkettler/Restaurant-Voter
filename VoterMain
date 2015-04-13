@@ -1,0 +1,11 @@
+import javax.swing.SwingUtilities;
+
+public class Voter {
+
+	public static void main(String[] args) {
+		UserInterface ui = new UserInterface();
+		SwingUtilities.invokeLater((Runnable) new UserInterface());
+
+	}
+
+}
